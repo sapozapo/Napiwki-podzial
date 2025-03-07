@@ -5,43 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator podziału kwoty</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        input, textarea { padding: 5px; margin: 5px; }
-        input[type="number"] { width: 80px; } 
-        input[type="text"] { width: 120px; } 
-        button { padding: 8px; margin: 5px; cursor: pointer; }
-        .person-list, .notes { margin-top: 20px; text-align: left; display: inline-block; width: 80%; }
-        .result { margin-top: 20px; font-weight: bold; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 { color: #333; }
+        input, textarea, button {
+            width: 90%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            display: block;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+        .person-list, .notes, .result {
+            margin-top: 20px;
+            text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th { background-color: #007bff; color: white; }
+        .delete-btn {
+            background: red;
+            border: none;
+            color: white;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete-btn:hover { background: darkred; }
     </style>
 </head>
 <body>
 
-    <h2>Kalkulator podziału kwoty</h2>
+    <div class="container">
+        <h2>Kalkulator podziału kwoty</h2>
 
-    <label>Całkowita kwota (S):</label>
-    <input type="number" id="totalAmount" value="0"> zł
-    <br>
+        <label>Całkowita kwota (S):</label>
+        <input type="number" id="totalAmount" value="0"> zł
 
-    <h3>Dodaj osobę</h3>
-    <label>Imię:</label>
-    <input type="text" id="personName">
-    <label>Procent:</label>
-    <input type="number" id="personPercentage">
-    <button onclick="addPerson()">Dodaj</button>
+        <h3>Dodaj osobę</h3>
+        <input type="text" id="personName" placeholder="Imię">
+        <input type="number" id="personPercentage" placeholder="Procent">
+        <button onclick="addPerson()">Dodaj</button>
 
-    <h3>Lista osób</h3>
-    <div class="person-list" id="personList"></div>
+        <h3>Lista osób</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Imię</th>
+                    <th>Procent</th>
+                    <th>usuń</th>
+                </tr>
+            </thead>
+            <tbody id="personList"></tbody>
+        </table>
 
-    <button onclick="calculateShares()">Oblicz podział</button>
+        <button onclick="calculateShares()">Oblicz podział</button>
+        <div class="result" id="output"></div>
 
-    <div class="result" id="output"></div>
+        <h3>Notatki</h3>
+        <textarea id="noteText" placeholder="Dodaj notatkę..."></textarea>
+        <button onclick="addNote()">Zapisz notatkę</button>
 
-    <h3>Notatki</h3>
-    <textarea id="noteText" placeholder="Dodaj notatkę..." style="width: 80%;"></textarea>
-    <br>
-    <button onclick="addNote()">Zapisz notatkę</button>
-
-    <div class="notes" id="notesList"></div>
+        <div class="notes" id="notesList"></div>
+    </div>
 
     <script>
         let people = [];
@@ -65,12 +119,15 @@
         }
 
         function updatePersonList() {
-            let listDiv = document.getElementById("personList");
-            listDiv.innerHTML = "";
+            let listTable = document.getElementById("personList");
+            listTable.innerHTML = "";
             people.forEach((person, index) => {
-                let personElement = document.createElement("p");
-                personElement.innerHTML = `${person.name} - ${person.percentage}% <button onclick="removePerson(${index})">❌</button>`;
-                listDiv.appendChild(personElement);
+                let row = `<tr>
+                    <td>${person.name}</td>
+                    <td>${person.percentage}%</td>
+                    <td><button class="delete-btn" onclick="removePerson(${index})">✖️</button></td>
+                </tr>`;
+                listTable.innerHTML += row;
             });
         }
 
@@ -79,8 +136,7 @@
             let P_total = people.reduce((sum, person) => sum + person.percentage, 0);
             let W = S / P_total;
 
-            let results = people.map(person => `${person.name}: ${(person.percentage * W).toFixed(2)} zł`);
-
+            let results = people.map(person => `<b>${person.name}:</b> ${(person.percentage * W).toFixed(2)} zł`);
             document.getElementById("output").innerHTML = results.join("<br>");
         }
 
@@ -103,7 +159,7 @@
             notesDiv.innerHTML = "";
             notes.forEach((note, index) => {
                 let noteElement = document.createElement("p");
-                noteElement.innerHTML = `📌 ${note} <button onclick="removeNote(${index})">❌</button>`;
+                noteElement.innerHTML = `📌 ${note} <button class="delete-btn" onclick="removeNote(${index})">❌</button>`;
                 notesDiv.appendChild(noteElement);
             });
         }
