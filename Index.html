@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator podziału kwoty</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, textarea { padding: 5px; margin: 5px; }
+        input[type="number"] { width: 80px; } 
+        input[type="text"] { width: 120px; } 
+        button { padding: 8px; margin: 5px; cursor: pointer; }
+        .person-list, .notes { margin-top: 20px; text-align: left; display: inline-block; width: 80%; }
+        .result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Kalkulator podziału kwoty</h2>
+
+    <label>Całkowita kwota (S):</label>
+    <input type="number" id="totalAmount" value="0"> zł
+    <br>
+
+    <h3>Dodaj osobę</h3>
+    <label>Imię:</label>
+    <input type="text" id="personName">
+    <label>Procent:</label>
+    <input type="number" id="personPercentage">
+    <button onclick="addPerson()">Dodaj</button>
+
+    <h3>Lista osób</h3>
+    <div class="person-list" id="personList"></div>
+
+    <button onclick="calculateShares()">Oblicz podział</button>
+
+    <div class="result" id="output"></div>
+
+    <h3>Notatki</h3>
+    <textarea id="noteText" placeholder="Dodaj notatkę..." style="width: 80%;"></textarea>
+    <br>
+    <button onclick="addNote()">Zapisz notatkę</button>
+
+    <div class="notes" id="notesList"></div>
+
+    <script>
+        let people = [];
+        let notes = [];
+
+        function addPerson() {
+            let name = document.getElementById("personName").value.trim();
+            let percentage = parseFloat(document.getElementById("personPercentage").value);
+
+            if (name && !isNaN(percentage) && percentage > 0) {
+                people.push({ name, percentage });
+                updatePersonList();
+                document.getElementById("personName").value = "";
+                document.getElementById("personPercentage").value = "";
+            }
+        }
+
+        function removePerson(index) {
+            people.splice(index, 1);
+            updatePersonList();
+        }
+
+        function updatePersonList() {
+            let listDiv = document.getElementById("personList");
+            listDiv.innerHTML = "";
+            people.forEach((person, index) => {
+                let personElement = document.createElement("p");
+                personElement.innerHTML = `${person.name} - ${person.percentage}% <button onclick="removePerson(${index})">❌</button>`;
+                listDiv.appendChild(personElement);
+            });
+        }
+
+        function calculateShares() {
+            let S = parseFloat(document.getElementById("totalAmount").value);
+            let P_total = people.reduce((sum, person) => sum + person.percentage, 0);
+            let W = S / P_total;
+
+            let results = people.map(person => `${person.name}: ${(person.percentage * W).toFixed(2)} zł`);
+
+            document.getElementById("output").innerHTML = results.join("<br>");
+        }
+
+        function addNote() {
+            let noteText = document.getElementById("noteText").value.trim();
+            if (noteText) {
+                notes.push(noteText);
+                updateNotes();
+                document.getElementById("noteText").value = "";
+            }
+        }
+
+        function removeNote(index) {
+            notes.splice(index, 1);
+            updateNotes();
+        }
+
+        function updateNotes() {
+            let notesDiv = document.getElementById("notesList");
+            notesDiv.innerHTML = "";
+            notes.forEach((note, index) => {
+                let noteElement = document.createElement("p");
+                noteElement.innerHTML = `📌 ${note} <button onclick="removeNote(${index})">❌</button>`;
+                notesDiv.appendChild(noteElement);
+            });
+        }
+    </script>
+
+</body>
+</html>
